@@ -9,13 +9,15 @@ import UIKit
 
 class CharacterCell: UITableViewCell {
     
+    //MARK: - Views
     let avatarImageView = RMAvatarImageView(frame: .zero)
     let nameLabel = RMTitleLabel(fontsize: 30)
     let speciesLabel = RMTitleLabel(fontsize: 30)
     let genderLabel = RMTitleLabel(fontsize: 30)
     let createdLabel = RMTitleLabel(fontsize: 30)
     
-    let padding : CGFloat = 13
+    //
+    
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -24,12 +26,17 @@ class CharacterCell: UITableViewCell {
       
        }
 
-     func set(character : Character){
-        nameLabel.text = "Name: " + character.name
-        speciesLabel.text = "Specie: " + character.species
-        genderLabel.text = "Gender: " + character.gender
-        createdLabel.text = "Created: " + character.created.prefix(10)
-         avatarImageView.downloadImage(from: character.image)
+     func set(character : Model){
+         nameLabel.text = character.nameText
+         speciesLabel.text = "Specie: " + character.speciesText
+         genderLabel.text = "Gender: " + character.genderText
+         createdLabel.text = "Created: " + character.createdText.prefix(10)
+         ImageCacheManager.shared.fetchImage(from: character.imageNameText, completed: { [weak self] image in
+             DispatchQueue.main.async {
+                 self?.avatarImageView.image = image
+             }
+         }
+         )
     }
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -46,32 +53,46 @@ class CharacterCell: UITableViewCell {
         
         
         NSLayoutConstraint.activate([
-            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-            avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 100),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 100),
+            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: Constants.View.topAnchorSpacing),
+            avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.View.avatarImageViewLeadingSpacing),
+            avatarImageView.widthAnchor.constraint(equalToConstant: Constants.View.avatarImageViewSpacing),
+            avatarImageView.heightAnchor.constraint(equalToConstant: Constants.View.avatarImageViewSpacing),
             
-            nameLabel.centerYAnchor.constraint(equalTo: avatarImageView.topAnchor, constant: padding),
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            nameLabel.centerYAnchor.constraint(equalTo: avatarImageView.topAnchor, constant: Constants.View.topAnchorSpacing),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Constants.View.labelLeadingSpacing),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            nameLabel.heightAnchor.constraint(equalToConstant: 20),
+            nameLabel.heightAnchor.constraint(equalToConstant: Constants.View.heightAnchorSpacing),
             
-            speciesLabel.centerYAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: padding),
-            speciesLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            speciesLabel.centerYAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.View.topAnchorSpacing),
+            speciesLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Constants.View.labelLeadingSpacing),
             speciesLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            speciesLabel.heightAnchor.constraint(equalToConstant: 20),
+            speciesLabel.heightAnchor.constraint(equalToConstant: Constants.View.heightAnchorSpacing),
             
-            genderLabel.centerYAnchor.constraint(equalTo: speciesLabel.bottomAnchor, constant: padding),
-            genderLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            genderLabel.centerYAnchor.constraint(equalTo: speciesLabel.bottomAnchor, constant: Constants.View.topAnchorSpacing),
+            genderLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Constants.View.labelLeadingSpacing),
             genderLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            genderLabel.heightAnchor.constraint(equalToConstant: 20),
+            genderLabel.heightAnchor.constraint(equalToConstant: Constants.View.heightAnchorSpacing),
             
-            createdLabel.centerYAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: padding),
-            createdLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            createdLabel.centerYAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: Constants.View.topAnchorSpacing),
+            createdLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Constants.View.labelLeadingSpacing),
             createdLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            createdLabel.heightAnchor.constraint(equalToConstant: 20),
+            createdLabel.heightAnchor.constraint(equalToConstant: Constants.View.heightAnchorSpacing),
             
         ])
         
+    }
+    
+}
+
+extension CharacterCell{
+    struct Constants{
+        struct View{
+            static let topAnchorSpacing : CGFloat = 13
+            static let heightAnchorSpacing : CGFloat = 20
+            static let avatarImageViewLeadingSpacing : CGFloat = 12
+            static let avatarImageViewSpacing : CGFloat = 100
+            static let labelLeadingSpacing : CGFloat = 12
+            
+        }
     }
 }

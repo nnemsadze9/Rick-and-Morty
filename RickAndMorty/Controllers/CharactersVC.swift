@@ -50,17 +50,18 @@ class CharactersVC: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = false
     }
     
+    
     func getCharacters(page : Int){
-        NetworkManager.shared.getCharacters(page: page) {[weak self] result in
+       let characterService = CharacterService()
+        characterService.getCharacters(page: page) { [weak self] result in
             guard let self = self else {
-                print("ehre")
                 return
             }
             DispatchQueue.main.async {
                 self.updateData(on: result)
                 self.tableView.reloadData()
             }
-            self.page += 1
+        
         }
     }
     
@@ -74,7 +75,7 @@ class CharactersVC: UIViewController {
 }
 
 
-    
+
 
 extension CharactersVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -82,44 +83,42 @@ extension CharactersVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let character = filteredData[indexPath.row]
-            
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "CharacterCell") as? CharacterCell else {
-                let cell = CharacterCell(style: .default, reuseIdentifier: "CharacterCell")
-                cell.set(character: character)
-                return cell
-            }
-            
+        let character = CharacterCell.Model.init(from: filteredData[indexPath.row]) 
+        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CharacterCell") as? CharacterCell else {
+            let cell = CharacterCell(style: .default, reuseIdentifier: "CharacterCell")
             cell.set(character: character)
             return cell
+        }
+        
+        cell.set(character: character)
+        return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 130 // Set your desired height
+        return 130
     }
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        
-        if offsetY > contentHeight - scrollView.frame.height * 2 && !isFilterOn {
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == filteredData.count - 5, !isFilterOn {
+            self.page += 1
             getCharacters(page: page)
-        }
+               }
     }
 }
 
 extension CharactersVC : UISearchResultsUpdating,UISearchBarDelegate{
     func updateSearchResults(for searchController: UISearchController) {
         guard let searchText = searchController.searchBar.text, !searchText.isEmpty else {
-                isFilterOn = false
-                  filteredData = data
-                  tableView.reloadData()
-                  return
-              }
-              isFilterOn = true
-              filteredData = data.filter { model in
-                  return model.name.lowercased().contains(searchText.lowercased())
-              }
-              
-              tableView.reloadData()
+            isFilterOn = false
+            filteredData = data
+            tableView.reloadData()
+            return
+        }
+        isFilterOn = true
+        filteredData = data.filter { model in
+            return model.name.lowercased().contains(searchText.lowercased())
+        }
+        
+        tableView.reloadData()
     }
-    
 }
